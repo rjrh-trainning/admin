@@ -179,7 +179,14 @@
     const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdoZ211cHlya2Vha3lvbGxpb2d2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkyNDE0ODksImV4cCI6MjA5NDQxNzQ4OX0.RSciT8WVeD9bwmo3DlMhw4KsdM1ftgKXka9QI9pvYzs"; 
     const GOOGLE_SHEET_API = "https://script.google.com/macros/s/AKfycbyX4O0PyxIkRy24iIotJn7atpAJznN7CvPAkUASoSbb9Uv7eFT_sVllTMs_SMcFlbmT/exec";
 
-    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    // 🔄 แก้ไขโครงสร้าง: เพิ่มการบังคับประกาศสิทธิ์พาสปอร์ตชั้นในระบบสากลให้จำ Token บนเบราว์เซอร์
+    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+        auth: {
+            persistSession: true,
+            autoRefreshToken: true
+        }
+    });
+
     let html5QrCode; let isProcessing = false;
 
     window.addEventListener('DOMContentLoaded', async () => {
@@ -199,9 +206,9 @@
         }
     }
 
-    // 🔄 ปรับปรุงฟังก์ชันล็อกอิน: คุมระบบตรวจสอบและหยุดการสั่นไหวของเบราว์เซอร์
+    // 🔄 ปรับปรุงฟังก์ชันล็อกอิน: ควบคุมตรรกะแบบไม่ซ้อนทับ และหยุดอาการเอ๋อของเบราว์เซอร์
     async function handleLogin(e) {
-        if (e && e.preventDefault) e.preventDefault(); // 🟢 หยุดการส่งฟอร์มเพื่อรีเฟรชหน้าเว็บเด็ดขาด
+        if (e && e.preventDefault) e.preventDefault(); // 🟢 หยุดการส่งฟอร์มซ้อนเพื่อรีเฟรชหน้าเว็บเด็ดขาด
         
         const btn = document.getElementById('btnLogin');
         const email = document.getElementById('loginEmail').value.trim();
