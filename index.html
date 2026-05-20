@@ -62,6 +62,7 @@
             <li class="nav-item"><button class="nav-link active" data-bs-toggle="pill" data-bs-target="#checkinTab"><i class="fas fa-qrcode me-1"></i> สแกนลงชื่อ</button></li>
             <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#reportTab" onclick="loadSessionsForReport()"><i class="fas fa-list me-1"></i> รายชื่อผู้สมัคร</button></li>
             <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#configTab" onclick="loadConfig()"><i class="fas fa-cog me-1"></i> ตั้งค่ารอบอบรม</button></li>
+            <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#certTab"><i class="fas fa-certificate me-1"></i> ใบประกาศ</button></li>
         </ul>
 
         <div class="tab-content">
@@ -88,7 +89,6 @@
                         <button class="btn btn-primary px-4" id="btnManualSubmit" onclick="processManualInput()"><i class="fas fa-search"></i> ค้นหา</button>
                     </div>
                     <div class="loader" id="searchLoader"><div class="spinner-border text-primary"></div></div>
-                    
                     <div id="actionResult" style="display: none; margin-top: 15px;"></div>
                 </div>
             </div>
@@ -120,48 +120,30 @@
                 <div class="card p-3 bg-light mb-4 shadow-sm">
                     <h6 class="fw-bold text-primary mb-3"><i class="fas fa-plus-circle me-2"></i>เปิดหลักสูตร / รอบการอบรมใหม่</h6>
                     <div class="row g-2">
-                        <div class="col-md-2 col-12">
-                            <select id="newCourseKey" class="form-select" title="เลือกรหัสย่อหลักสูตร">
-                                <option value="STB">STB</option>
-                                <option value="BLS">BLS</option>
-                                <option value="FOST">FOST</option>
-                            </select>
-                        </div>
-                        <div class="col-md-3 col-12">
-                            <input type="text" id="newSessionName" class="form-control" placeholder="ชื่อโครงการ/หลักสูตรเต็ม">
-                        </div>
-                        <div class="col-md-3 col-6">
-                            <input type="date" id="newSessionDate" class="form-control" title="เลือกวันที่จัดอบรม">
-                        </div>
-                        <div class="col-md-2 col-6">
-                            <select id="newSessionTime" class="form-select">
-                                <option value="รอบเช้า">รอบเช้า</option>
-                                <option value="รอบบ่าย">รอบบ่าย</option>
-                                <option value="เต็มวัน">เต็มวัน</option>
-                            </select>
-                        </div>
-                        <div class="col-md-1 col-8">
-                            <input type="number" id="newSessionMax" class="form-control" placeholder="ที่นั่ง" min="1">
-                        </div>
-                        <div class="col-md-1 col-4">
-                            <button class="btn btn-success w-100 fw-bold" id="btnCreateSession" onclick="addNewSession()">เพิ่ม</button>
-                        </div>
+                        <div class="col-md-2 col-12"><select id="newCourseKey" class="form-select"><option value="STB">STB</option><option value="BLS">BLS</option><option value="FOST">FOST</option></select></div>
+                        <div class="col-md-3 col-12"><input type="text" id="newSessionName" class="form-control" placeholder="ชื่อโครงการ"></div>
+                        <div class="col-md-3 col-6"><input type="date" id="newSessionDate" class="form-control"></div>
+                        <div class="col-md-2 col-6"><select id="newSessionTime" class="form-select"><option value="รอบเช้า">รอบเช้า</option><option value="รอบบ่าย">รอบบ่าย</option><option value="เต็มวัน">เต็มวัน</option></select></div>
+                        <div class="col-md-1 col-8"><input type="number" id="newSessionMax" class="form-control" placeholder="ที่นั่ง"></div>
+                        <div class="col-md-1 col-4"><button class="btn btn-success w-100 fw-bold" id="btnCreateSession" onclick="addNewSession()">เพิ่ม</button></div>
                     </div>
                 </div>
                 <div class="card p-3 shadow-sm">
                     <div class="table-responsive">
-                        <table class="table align-middle">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>รหัสย่อ / ชื่อการอบรม / วันที่จัด</th>
-                                    <th width="100" class="text-center">สถานะ</th>
-                                    <th width="100" class="text-center">โควตา</th>
-                                    <th width="100" class="text-center">คงเหลือ</th>
-                                    <th width="150" class="text-center">จัดการ</th>
-                                </tr>
-                            </thead>
-                            <tbody id="configTableBody"></tbody>
-                        </table>
+                        <table class="table align-middle"><thead class="table-light"><tr><th>รหัสย่อ / ชื่อการอบรม</th><th>สถานะ</th><th>โควตา</th><th>คงเหลือ</th><th>จัดการ</th></tr></thead><tbody id="configTableBody"></tbody></table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-pane fade" id="certTab">
+                <div class="card p-5 text-center shadow-sm border-0">
+                    <div class="py-5">
+                        <i class="fas fa-certificate fa-3x text-primary mb-3 opacity-50"></i>
+                        <h3 class="fw-bold text-primary">ระบบใบประกาศนียบัตร</h3>
+                        <p class="text-muted">ฟีเจอร์การจัดการใบประกาศกำลังอยู่ในระหว่างการพัฒนา</p>
+                        <span class="badge bg-warning text-dark px-4 py-2 mt-2 rounded-pill shadow-sm">
+                            <i class="fas fa-clock me-1"></i> COMING SOON
+                        </span>
                     </div>
                 </div>
             </div>
@@ -175,15 +157,16 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
-    const PROJECT_NAME = "RJRH TRAINING CENTER";
+    // ⚙️ อัปเดตข้อมูล Config
     const SUPABASE_URL = "https://ghgmupyrkeakyolliogv.supabase.co"; 
     const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdoZ211cHlya2Vha3lvbGxpb2d2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkyNDE0ODksImV4cCI6MjA5NDgxNzQ4OX0.RSciT8WVeD9bwmo3DlMhw4KsdM1ftgKXka9QI9pvYzs"; 
     const GOOGLE_SHEET_API = "https://script.google.com/macros/s/AKfycby1Cfn0lSS6eDfCikdaXViWVUfGlv7EZOWFQzX5KQ7q6e2TsVpBp316dgSes3rvz0yf/exec";
+    const CERT_STB_API = "https://script.google.com/macros/s/AKfycbz3e70SuUUB0pL6LwpFV51cg_J3u7HYUZBiMJVi5_I5nkUcOOg7aZS0jFOtUtXI1Ks_/exec";
 
     const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     let html5QrCode; 
     let isProcessing = false;
-    let pendingUser = null; 
+    let pendingUser = null;
 
     window.addEventListener('DOMContentLoaded', async () => {
         const { data: { session } } = await supabaseClient.auth.getSession();
