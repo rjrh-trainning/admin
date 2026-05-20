@@ -25,7 +25,6 @@
 </head>
 <body>
 
-<!-- ส่วนของหน้าต่างเข้าสู่ระบบ (Authentication) -->
 <div id="authContainer">
     <div class="login-card text-center">
         <div class="mb-4">
@@ -33,7 +32,7 @@
             <h4 class="fw-bold text-primary mt-3">RJRH TRAINING CENTER</h4>
             <p class="text-muted small">ระบบจัดการข้อมูลและเช็คอินสำหรับเจ้าหน้าที่</p>
         </div>
-        <form id="loginForm" class="text-start" onsubmit="handleLogin(event)">
+        <form id="loginForm" class="text-start" onsubmit="handleLogin(event); return false;">
             <div class="mb-3">
                 <label class="form-label fw-semibold">username</label>
                 <input type="email" id="loginEmail" class="form-control form-control-lg bg-light" placeholder="admin@gmail.com" required>
@@ -42,12 +41,11 @@
                 <label class="form-label fw-semibold">password</label>
                 <input type="password" id="loginPassword" class="form-control form-control-lg bg-light" placeholder="••••••••" required>
             </div>
-            <button type="submit" id="btnLogin" class="btn btn-primary btn-lg w-100 rounded-3 fw-bold">เข้าสู่ระบบ</button>
+            <button type="button" id="btnLogin" class="btn btn-primary btn-lg w-100 rounded-3 fw-bold" onclick="handleLogin(event)">เข้าสู่ระบบ</button>
         </form>
     </div>
 </div>
 
-<!-- ส่วนของหน้าต่างแดชบอร์ดควบคุมหลัก (Dashboard) -->
 <div id="dashboardContainer" style="display: none;">
     <nav class="navbar navbar-dark shadow-sm">
         <div class="container d-flex justify-content-between align-items-center">
@@ -67,7 +65,6 @@
         </ul>
 
         <div class="tab-content">
-            <!-- TAB 1: ระบบสแกนเช็คอิน / คีย์ด้วยเบอร์โทร -->
             <div class="tab-pane fade show active" id="checkinTab">
                 <div class="card p-4 bg-white shadow-sm">
                     <div class="btn-group w-100 mb-4" role="group">
@@ -95,7 +92,6 @@
                 </div>
             </div>
 
-            <!-- TAB 2: รายชื่อแยกตามหลักสูตรภาษาไทยและอังกฤษ -->
             <div class="tab-pane fade" id="reportTab">
                 <div class="card p-3 shadow-sm border-0">
                     <div class="mb-3">
@@ -120,7 +116,6 @@
                 </div>
             </div>
 
-            <!-- TAB 3: ระบบเปิดรอบและจัดการปฏิทินงานอบรม -->
             <div class="tab-pane fade" id="configTab">
                 <div class="card p-3 bg-light mb-4 shadow-sm">
                     <h6 class="fw-bold text-primary mb-3"><i class="fas fa-plus-circle me-2"></i>เปิดหลักสูตร / รอบการอบรมใหม่</h6>
@@ -204,11 +199,15 @@
         }
     }
 
+    // 🔄 ปรับปรุงฟังก์ชันล็อกอิน: คุมระบบตรวจสอบและหยุดการสั่นไหวของเบราว์เซอร์
     async function handleLogin(e) {
-        e.preventDefault();
+        if (e && e.preventDefault) e.preventDefault(); // 🟢 หยุดการส่งฟอร์มเพื่อรีเฟรชหน้าเว็บเด็ดขาด
+        
         const btn = document.getElementById('btnLogin');
         const email = document.getElementById('loginEmail').value.trim();
-        const password = document.getElementById('loginPassword').value;
+        const password = document.getElementById('loginPassword').value.trim(); // ล้างช่องว่างหัวท้าย
+        
+        if (!email || !password) return false;
         
         btn.disabled = true; btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> กำลังเข้าระบบ...';
 
@@ -217,6 +216,7 @@
             Swal.fire('ล็อกอินล้มเหลว', 'อีเมลหรือรหัสผ่านเจ้าหน้าที่ไม่ถูกต้อง', 'error'); 
             btn.disabled = false; btn.innerHTML = 'เข้าสู่ระบบ'; 
         }
+        return false;
     }
 
     async function handleLogout() { await supabaseClient.auth.signOut(); }
