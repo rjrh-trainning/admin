@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Staff Dashboard - RJRH TRAINING CENTER</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root { --primary: #0b4c8c; --accent: #1976d2; }
+        body { font-family: 'Sarabun', sans-serif; background-color: #f0f4f8; color: #1e293b; }
+        .navbar { background: linear-gradient(135deg, #062b52, var(--accent)); padding: 12px 0; }
+        .card { border: none; border-radius: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); margin-bottom: 20px; }
+        .nav-pills .nav-link { color: #64748b; border-radius: 10px; font-weight: 600; }
+        .nav-pills .nav-link.active { background-color: var(--primary); }
+        .status-badge { padding: 5px 12px; border-radius: 20px; font-size: 0.85rem; }
+        .loader { display: none; text-align: center; padding: 20px; }
+        #reader { width: 100%; border-radius: 15px; overflow: hidden; background-color: #000; }
+        #authContainer { min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+        .login-card { width: 100%; max-width: 420px; padding: 35px; border-radius: 24px; background: #fff; box-shadow: 0 20px 60px rgba(11,76,140,0.08); }
+        .status-toggle { cursor: pointer; transition: 0.2s; }
+        .status-toggle:hover { opacity: 0.8; }
+    </style>
+</head>
+<body>
+
+<!-- ส่วนของหน้าต่างเข้าสู่ระบบ (Authentication) -->
+<div id="authContainer">
+    <div class="login-card text-center">
+        <div class="mb-4">
+            <!-- อัปเดตโลโก้ศูนย์ฝึกอบรม RJRH ภาคสตาฟแอดมิน -->
+            <img src="https://ghgmupyrkeakyolliogv.supabase.co/storage/v1/object/public/rjrh-trainning's%20Org/rjrh-traiing.png" alt="Logo" style="max-width: 220px; height: auto;">
+            <h4 class="fw-bold text-primary mt-3">RJRH TRAINING CENTER</h4>
+            <p class="text-muted small">ระบบจัดการข้อมูลและเช็คอินสำหรับเจ้าหน้าที่</p>
+        </div>
+        <form id="loginForm" class="text-start" onsubmit="handleLogin(event)">
+            <div class="mb-3">
+                <label class="form-label fw-semibold">username</label>
+                <input type="email" id="loginEmail" class="form-control form-control-lg bg-light" placeholder="admin@gmail.com" required>
+            </div>
+            <div class="mb-4">
+                <label class="form-label fw-semibold">password</label>
+                <input type="password" id="loginPassword" class="form-control form-control-lg bg-light" placeholder="••••••••" required>
+            </div>
+            <button type="submit" id="btnLogin" class="btn btn-primary btn-lg w-100 rounded-3 fw-bold">เข้าสู่ระบบ</button>
+        </form>
+    </div>
+</div>
+
+<!-- ส่วนของหน้าต่างแดชบอร์ดควบคุมหลัก (Dashboard) -->
+<div id="dashboardContainer" style="display: none;">
+    <nav class="navbar navbar-dark shadow-sm">
+        <div class="container d-flex justify-content-between align-items-center">
+            <span class="navbar-brand fw-bold d-flex align-items-center">
+                <img src="https://ghgmupyrkeakyolliogv.supabase.co/storage/v1/object/public/rjrh-trainning's%20Org/rjrh-traiing.png" alt="Logo" style="height: 38px; margin-right: 12px; filter: brightness(0) invert(1);"> 
+                RJRH TRAINING CENTER - Dashboard
+            </span>
+            <button class="btn btn-sm btn-outline-light rounded-pill px-3 fw-bold" onclick="handleLogout()"><i class="fas fa-sign-out-alt me-1"></i> ออกจากระบบ</button>
+        </div>
+    </nav>
+
+    <div class="container py-4">
+        <ul class="nav nav-pills nav-fill mb-4 p-1 bg-white rounded-3 shadow-sm" id="staffTab" role="tablist">
+            <li class="nav-item"><button class="nav-link active" data-bs-toggle="pill" data-bs-target="#checkinTab"><i class="fas fa-qrcode me-1"></i> สแกนลงชื่อ</button></li>
+            <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#reportTab" onclick="loadSessionsForReport()"><i class="fas fa-list me-1"></i> รายชื่อ</button></li>
+            <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#configTab" onclick="loadConfig()"><i class="fas fa-cog me-1"></i> ตั้งค่ารอบอบรม</button></li>
+        </ul>
+
+        <div class="tab-content">
+            <!-- TAB 1: ระบบสแกนเช็คอิน / คีย์ด้วยเบอร์โทร -->
+            <div class="tab-pane fade show active" id="checkinTab">
+                <div class="card p-4 bg-white shadow-sm">
+                    <div class="btn-group w-100 mb-4" role="group">
+                        <input type="radio" class="btn-check" name="scanMode" id="modeIn" value="IN" checked>
+                        <label class="btn btn-outline-success py-2 fw-bold" for="modeIn">โหมดเช็คอิน</label>
+                        <input type="radio" class="btn-check" name="scanMode" id="modeOut" value="OUT">
+                        <label class="btn btn-outline-warning py-2 fw-bold" for="modeOut">โหมดเช็คเอาท์ (ยกเลิก)</label>
+                    </div>
+                    <div class="text-center mb-3" id="cameraStartSection">
+                        <button class="btn btn-primary btn-lg w-100 fw-bold shadow-sm py-3" onclick="startScanner()"><i class="fas fa-camera me-2"></i> เปิดกล้องสแกน QR</button>
+                    </div>
+                    <div id="scannerContainer" style="display: none;" class="mb-3">
+                        <button class="btn btn-danger w-100 fw-bold mb-3 shadow-sm" onclick="stopScanner()">ปิดกล้อง</button>
+                        <div id="reader"></div>
+                    </div>
+                    <div id="actionResult" style="display: none;"></div>
+                </div>
+                <div class="card p-4 shadow-sm">
+                    <h6 class="fw-bold text-muted mb-3">พิมพ์รหัสด้วยตัวเอง (Manual)</h6>
+                    <div class="input-group">
+                        <input type="text" id="searchInput" class="form-control form-control-lg bg-light" placeholder="กรอกรหัสลงทะเบียน 6 หลัก หรือ เบอร์โทรศัพท์">
+                        <button class="btn btn-primary px-4" id="btnManualSubmit" onclick="processManualInput()"><i class="fas fa-paper-plane"></i></button>
+                    </div>
+                    <div class="loader" id="searchLoader"><div class="spinner-border text-primary"></div></div>
+                </div>
+            </div>
+
+            <!-- TAB 2: รายชื่อแยกตามหลักสูตรภาษาไทยและอังกฤษ -->
+            <div class="tab-pane fade" id="reportTab">
+                <div class="card p-3 shadow-sm border-0">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold text-primary">เลือกหลักสูตร / รอบที่ต้องการดูข้อมูล</label>
+                        <select class="form-select bg-light" id="reportSessionSelect" onchange="loadParticipants()"><option value="">-- เลือกรอบอบรม --</option></select>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th width="60" class="text-center">ลำดับ</th>
+                                    <th>ชื่อภาษาไทย</th>
+                                    <th>ชื่อภาษาอังกฤษ (EN)</th>
+                                    <th width="100" class="text-center">รหัส</th>
+                                    <th width="140" class="text-center">สิทธิ์ถ่ายภาพ (PDPA)</th>
+                                    <th width="110" class="text-center">สถานะ</th>
+                                </tr>
+                            </thead>
+                            <tbody id="participantList"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 3: ระบบเปิดรอบและจัดการปฏิทินงานอบรม -->
+            <div class="tab-pane fade" id="configTab">
+                <div class="card p-3 bg-light mb-4 shadow-sm">
+                    <h6 class="fw-bold text-primary mb-3"><i class="fas fa-plus-circle me-2"></i>เปิดหลักสูตร / รอบการอบรมใหม่</h6>
+                    <div class="row g-2">
+                        <div class="col-md-2 col-12">
+                            <select id="newCourseKey" class="form-select" title="เลือกรหัสย่อหลักสูตร">
+                                <option value="STB">STB</option>
+                                <option value="BLS">BLS</option>
+                                <option value="FOST">FOST</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3 col-12">
+                            <input type="text" id="newSessionName" class="form-control" placeholder="ชื่อโครงการ/หลักสูตรเต็ม">
+                        </div>
+                        <div class="col-md-3 col-6">
+                            <input type="date" id="newSessionDate" class="form-control" title="เลือกวันที่จัดอบรม">
+                        </div>
+                        <div class="col-md-2 col-6">
+                            <select id="newSessionTime" class="form-select">
+                                <option value="รอบเช้า">รอบเช้า</option>
+                                <option value="รอบบ่าย">รอบบ่าย</option>
+                                <option value="เต็มวัน">เต็มวัน</option>
+                            </select>
+                        </div>
+                        <div class="col-md-1 col-8">
+                            <input type="number" id="newSessionMax" class="form-control" placeholder="ที่นั่ง" min="1">
+                        </div>
+                        <div class="col-md-1 col-4">
+                            <button class="btn btn-success w-100 fw-bold" id="btnCreateSession" onclick="addNewSession()">เพิ่ม</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="card p-3 shadow-sm">
+                    <div class="table-responsive">
+                        <table class="table align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>รหัสย่อ / ชื่อการอบรม / วันที่จัด</th>
+                                    <th width="100" class="text-center">สถานะ</th>
+                                    <th width="100" class="text-center">โควตา</th>
+                                    <th width="100" class="text-center">คงเหลือ</th>
+                                    <th width="150" class="text-center">จัดการ</th>
+                                </tr>
+                            </thead>
+                            <tbody id="configTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://unpkg.com/html5-qrcode"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+    const SUPABASE_URL = "https://ghgmupyrkeakyolliogv.supabase.co"; 
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdoZ211cHlya2Vha3lvbGxpb2d2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkyNDE0ODksImV4cCI6MjA5NDQxNzQ4OX0.RSciT8WVeD9bwmo3DlMhw4KsdM1ftgKXka9QI9pvYzs"; 
+    const GOOGLE_SHEET_API = "https://script.google.com/macros/s/AKfycbyX4O0PyxIkRy24iIotJn7atpAJznN7CvPAkUASoSbb9Uv7eFT_sVllTMs_SMcFlbmT/exec";
+
+    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    let html5QrCode; let isProcessing = false;
+
+    window.addEventListener('DOMContentLoaded', async () => {
+        const { data: { session } } = await supabaseClient.auth.getSession();
+        toggleAppView(session);
+        supabaseClient.auth.onAuthStateChange((_event, session) => { toggleAppView(session); });
+    });
+
+    function toggleAppView(session) {
+        if (session) {
+            document.getElementById('authContainer').style.display = 'none';
+            document.getElementById('dashboardContainer').style.display = 'block';
+        } else {
+            document.getElementById('authContainer').style.display = 'flex';
+            document.getElementById('dashboardContainer').style.display = 'none';
+            stopScanner();
+        }
+    }
+
+    async function handleLogin(e) {
+        e.preventDefault();
+        const btn = document.getElementById('btnLogin');
+        const email = document.getElementById('loginEmail').value.trim();
+        const password = document.getElementById('loginPassword').value;
+        
+        btn.disabled = true; btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> กำลังเข้าระบบ...';
+
+        const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
+        if (error) { 
+            Swal.fire('ล็อกอินล้มเหลว', 'อีเมลหรือรหัสผ่านเจ้าหน้าที่ไม่ถูกต้อง', 'error'); 
+            btn.disabled = false; btn.innerHTML = 'เข้าสู่ระบบ'; 
+        }
+    }
+
+    async function handleLogout() { await supabaseClient.auth.signOut(); }
+
+    async function startScanner() {
+        document.getElementById('actionResult').style.display = 'none';
+        if (!html5QrCode) html5QrCode = new Html5Qrcode("reader");
+        document.getElementById('cameraStartSection').style.display = 'none';
+        document.getElementById('scannerContainer').style.display = 'block';
+        try { await html5QrCode.start({ facingMode: "environment" }, { fps: 10, qrbox: 260 }, onScanSuccess); } 
+        catch (err) { Swal.fire('ข้อผิดพลาด', 'ระบบไม่สามารถเข้าถึงโมดูลกล้องถ่ายรูปได้', 'warning'); stopScanner(); }
+    }
+
+    function stopScanner() {
+        if (html5QrCode && html5QrCode.isScanning) {
+            html5QrCode.stop().then(() => {
+                document.getElementById('cameraStartSection').style.display = 'block';
+                document.getElementById('scannerContainer').style.display = 'none';
+            });
+        }
+    }
+
+    onScanSuccess = (decodedText) => {
+        if(isProcessing) return;
+        document.getElementById('searchInput').value = decodedText;
+        stopScanner(); executeCheckInAction(decodedText);
+    }
+
+    function processManualInput() {
+        const query = document.getElementById('searchInput').value.trim();
+        if(query) executeCheckInAction(query);
+    }
+
+    async function executeCheckInAction(searchQuery) {
+        if(isProcessing) return;
+        isProcessing = true; 
+        showLoader('searchLoader', true);
+        
+        const btnManual = document.getElementById('btnManualSubmit');
+        if(btnManual) btnManual.disabled = true;
+
+        const selectedMode = document.querySelector('input[name="scanMode"]:checked').value;
+        const resultDiv = document.getElementById('actionResult'); 
+        resultDiv.style.display = 'none';
+
+        try {
+            let queryBuilder = supabaseClient.from('registrations').select('*, sessions(name, date, course_key)');
+            if (/^\d{9,10}$/.test(searchQuery)) {
+                queryBuilder = queryBuilder.eq('phone', searchQuery);
+            } else {
+                queryBuilder = queryBuilder.eq('id', searchQuery);
+            }
+
+            const { data: results, error: fetchError } = await queryBuilder;
+            if (fetchError) throw fetchError;
+            if (!results || results.length === 0) {
+                throw new Error(`ไม่พบข้อมูลผู้ลงทะเบียนจากรหัส หรือ เบอร์โทร: "${searchQuery}"`);
+            }
+
+            const user = results[results.length - 1];
+            const registrationId = user.id;
+
+            let updateField = selectedMode === "IN" ? { is_checked_in: true, checked_in_at: new Date() } : { is_checked_in: false, checked_in_at: null };
+            const { error: updateError } = await supabaseClient.from('registrations').update(updateField).eq('id', registrationId);
+            if (updateError) throw updateError;
+
+            if(selectedMode === "IN") {
+                const fullSessionString = `${user.sessions.name} (${user.sessions.date})`;
+                await fetch(GOOGLE_SHEET_API, {
+                    method: 'POST', mode: 'no-cors',
+                    body: new URLSearchParams({ 
+                        action: "checkInSuccess", 
+                        id: user.id, 
+                        prefix: user.prefix, 
+                        nameTh: user.name_th,
+                        nameEn: user.name_en, 
+                        phone: user.phone, 
+                        email: user.email, 
+                        sessionName: fullSessionString,
+                        courseKey: user.sessions.course_key 
+                    })
+                });
+            }
+
+            let pdpaBadge = '';
+            if (selectedMode === "IN") {
+                pdpaBadge = user.photo_consent 
+                    ? `<div class="mt-2 text-success fw-bold small"><i class="fas fa-camera me-1"></i> ยินยอมให้ถ่ายภาพประชาสัมพันธ์ ได้</div>` 
+                    : `<div class="mt-2 text-danger fw-bold small"><i class="fas fa-camera-slash me-1"></i> ❌ ห้ามถ่ายภาพ/วิดีโอประชาสัมพันธ์เด็ดขาด</div>`;
+            }
+
+            resultDiv.style.display = 'block';
+            resultDiv.innerHTML = `
+                <div class="alert alert-success text-center fw-bold fs-5 shadow-sm py-3 mb-0">
+                    <i class="fas fa-check-circle me-2"></i>
+                    ${selectedMode === "IN" ? 'เช็คอินสำเร็จ (บันทึกชีตแล้ว)' : 'ยกเลิกสถานะเช็คอินเรียบร้อย'}!<br>
+                    <span class="text-primary">${user.name_th} (${user.prefix} ${user.name_en})</span>
+                    ${pdpaBadge}
+                </div>`;
+        } catch (e) {
+            resultDiv.style.display = 'block';
+            resultDiv.innerHTML = `<div class="alert alert-danger text-center fw-bold shadow-sm py-3 mb-0"><i class="fas fa-times-circle me-2"></i>${e.message}</div>`;
+        } finally { 
+            showLoader('searchLoader', false); 
+            document.getElementById('searchInput').value = ''; 
+            if(btnManual) btnManual.disabled = false;
+            isProcessing = false; 
+        }
+    }
+
+    async function loadSessionsForReport() {
+        const sel = document.getElementById('reportSessionSelect');
+        const { data: sessions, error } = await supabaseClient.from('sessions').select('*').order('id', { ascending: true });
+        if (error) return;
+        sel.innerHTML = '<option value="">-- เลือกรอบอบรม --</option>';
+        sessions.forEach(s => { sel.innerHTML += `<option value="${s.id}">[${s.course_key}] ${s.name} [รอบ: ${s.date}]</option>`; });
+    }
+
+    async function loadParticipants() {
+        const sessionId = document.getElementById('reportSessionSelect').value; if(!sessionId) return;
+        const tbody = document.getElementById('participantList'); tbody.innerHTML = '<tr><td colspan="6" class="text-center">กำลังโหลดข้อมูลรายชื่อ...</td></tr>';
+        
+        const { data: list, error } = await supabaseClient.from('registrations').select('*').eq('session_id', sessionId).order('created_at', { ascending: true });
+        if(error) { tbody.innerHTML = '<tr><td colspan="6" class="text-center text-danger">เกิดข้อผิดพลาดภายในหมวดค้นหาข้อมูล</td></tr>'; return; }
+        
+        tbody.innerHTML = '';
+        if(list.length === 0) { tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted">รอบการอบรมนี้ยังไม่มีผู้ลงทะเบียนเข้ามาในฐานระบบ</td></tr>'; return; }
+
+        list.forEach((row, index) => {
+            const status = row.is_checked_in ? '<span class="badge bg-success"><i class="fas fa-check me-1"></i>รายงานตัวแล้ว</span>' : '<span class="badge bg-secondary">ยังไม่แสดงตัว</span>';
+            const photoConsentStatus = row.photo_consent 
+                ? '<span class="badge bg-light text-success border border-success"><i class="fas fa-camera me-1"></i>ถ่ายรูปได้</span>' 
+                : '<span class="badge bg-light text-danger border border-danger"><i class="fas fa-camera-slash me-1"></i>❌ ห้ามถ่าย</span>';
+
+            tbody.innerHTML += `
+                <tr>
+                    <td class="text-center fw-bold text-muted">${index + 1}</td>
+                    <td><b>${row.name_th}</b></td>
+                    <td><code>${row.prefix} ${row.name_en}</code></td>
+                    <td class="text-center"><code>${row.id}</code></td>
+                    <td class="text-center">${photoConsentStatus}</td>
+                    <td class="text-center">${status}</td>
+                </tr>`;
+        });
+    }
+
+    async function loadConfig() {
+        const tbody = document.getElementById('configTableBody'); tbody.innerHTML = '<tr><td colspan="5" class="text-center">กำลังโหลดรายการ...</td></tr>';
+        const { data: sessions, error } = await supabaseClient.from('sessions').select('*').order('id', { ascending: true });
+        if (error) return;
+        tbody.innerHTML = '';
+        sessions.forEach(s => {
+            const statusBadge = s.status === 'Active' ? `<span class="badge bg-success status-toggle" onclick="toggleSessionStatus(${s.id}, 'Closed')" title="คลิกเพื่อปิดล็อกฟอร์มชั่วคราว">เปิดรับ</span>` : `<span class="badge bg-secondary status-toggle" onclick="toggleSessionStatus(${s.id}, 'Active')" title="คลิกเพื่อเปิดรับเปิดระบบ">ปิดซ่อน</span>`;
+            tbody.innerHTML += `
+                <tr>
+                    <td><span class="badge bg-dark mb-1">${s.course_key}</span><br><b>${s.name}</b><br><small class="text-primary fw-bold"><i class="far fa-calendar-alt me-1"></i> ${s.date}</small></td>
+                    <td class="text-center">${statusBadge}</td>
+                    <td class="text-center px-1"><input type="number" class="form-control form-control-sm text-center mx-auto" id="max_${s.id}" value="${s.max_seats}" style="width:75px" min="1"></td>
+                    <td class="text-center fw-bold text-primary">${s.available_seats}</td>
+                    <td class="text-center">
+                        <button class="btn btn-sm btn-warning text-dark mb-1 me-1" onclick="editAdvancedSessionData(${s.id}, '${s.name}', '${s.date}', '${s.course_key}')" title="แก้ไขชื่อ/วันที่/รอบเวลา"><i class="fas fa-edit"></i></button>
+                        <button class="btn btn-sm btn-primary mb-1 me-1" onclick="updateSeatsQuota(${s.id})" title="บันทึกจำนวนโควตาที่นั่ง"><i class="fas fa-save"></i></button> 
+                        <button class="btn btn-sm btn-danger mb-1" onclick="deleteSessionData(${s.id}, '${s.name}')" title="ลบข้อมูลรอบอบรมถาวร"><i class="fas fa-trash"></i></button>
+                    </td>
+                </tr>`;
+        });
+    }
+
+    async function addNewSession() {
+        const courseKey = document.getElementById('newCourseKey').value;
+        const name = document.getElementById('newSessionName').value.trim(); 
+        const rawDate = document.getElementById('newSessionDate').value; 
+        const timePart = document.getElementById('newSessionTime').value; 
+        const max = document.getElementById('newSessionMax').value;
+        const btn = document.getElementById('btnCreateSession');
+        
+        if(!name || !rawDate || !max || parseInt(max) <= 0) { 
+            Swal.fire('ข้อมูลไม่ครบถ้วน', 'กรุณาระบุข้อมูลรอบสมัครให้ครบถ้วนด้วยครับ', 'warning'); 
+            return; 
+        }
+        
+        btn.disabled = true; btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
+
+        try {
+            const dateParts = rawDate.split("-"); 
+            const thaiMonths = ["มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน", "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"];
+            
+            const day = parseInt(dateParts[2]);
+            const month = thaiMonths[parseInt(dateParts[1]) - 1];
+            const year = parseInt(dateParts[0]) + 543; 
+            const fullDateString = `${day} ${month} ${year} ${timePart}`; 
+
+            const { error } = await supabaseClient.from('sessions').insert([{ course_key: courseKey, name, date: fullDateString, max_seats: parseInt(max), available_seats: parseInt(max) }]);
+            if(error) throw error;
+
+            Swal.fire('สำเร็จ', 'ทำการเปิดระบบรอบฝึกอบรมหลักสูตรเรียบร้อย', 'success');
+            document.getElementById('newSessionName').value = ''; 
+            document.getElementById('newSessionDate').value = ''; 
+            document.getElementById('newSessionMax').value = ''; 
+            loadConfig(); 
+        } catch (err) {
+            Swal.fire('ข้อผิดพลาด', 'ล้มเหลวในการเชื่อมต่อเซิร์ฟเวอร์ฐานข้อมูล', 'error');
+        } finally {
+            btn.disabled = false; btn.innerHTML = 'เพิ่ม';
+        }
+    }
+
+    async function editAdvancedSessionData(id, currentName, currentDateStr, currentKey) {
+        let defaultTime = "รอบเช้า";
+        if (currentDateStr.includes("รอบบ่าย")) defaultTime = "รอบบ่าย";
+        else if (currentDateStr.includes("เต็มวัน")) defaultTime = "เต็มวัน";
+
+        let parsedCalendarDate = "";
+        try {
+            let dateParts = currentDateStr.split(" ");
+            if (dateParts.length >= 3) {
+                let dayStr = dateParts[0].padStart(2, '0');
+                let monthStr = dateParts[1];
+                let yearStr = dateParts[2];
+                const thaiMonths = ["มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน", "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"];
+                let monthIdx = thaiMonths.indexOf(monthStr);
+                if (monthIdx !== -1) {
+                    let monthNum = String(monthIdx + 1).padStart(2, '0');
+                    let systemYear = parseInt(yearStr) - 543;
+                    parsedCalendarDate = `${systemYear}-${monthNum}-${dayStr}`;
+                }
+            }
+        } catch(e) { console.error(e); }
+
+        const { value: formValues } = await Swal.fire({
+            title: 'แก้ไขรายละเอียดรอบอบรม',
+            html: `
+                <div class="text-start mb-2"><label class="form-label fw-bold small text-muted">1. รหัสย่อหลักสูตร</label></div>
+                <select id="swal-key" class="form-select mb-3">
+                    <option value="STB" ${currentKey === "STB" ? "selected" : ""}>STB</option>
+                    <option value="BLS" ${currentKey === "BLS" ? "selected" : ""}>BLS</option>
+                    <option value="FOST" ${currentKey === "FOST" ? "selected" : ""}>FOST</option>
+                </select>
+                <div class="text-start mb-2"><label class="form-label fw-bold small text-muted">2. ชื่อโครงการ / หลักสูตรเต็ม</label></div>
+                <input id="swal-name" class="form-control mb-3 fs-6" value="${currentName}">
+                <div class="text-start mb-1"><label class="form-label fw-bold small text-muted">3. วันที่จัดอบรม</label></div>
+                <input id="swal-date" type="date" class="form-control mb-3" value="${parsedCalendarDate}">
+                <div class="text-start mb-2"><label class="form-label fw-bold small text-muted">4. รอบเวลาจัดอบรม</label></div>
+                <select id="swal-time" class="form-select mb-2">
+                    <option value="รอบเช้า" ${defaultTime === "รอบเช้า" ? "selected" : ""}>รอบเช้า</option>
+                    <option value="รอบบ่าย" ${defaultTime === "รอบบ่าย" ? "selected" : ""}>รอบบ่าย</option>
+                    <option value="เต็มวัน" ${defaultTime === "เต็มวัน" ? "selected" : ""}>เต็มวัน</option>
+                </select>
+            `,
+            focusConfirm: false,
+            showCancelButton: true,
+            confirmButtonText: '<i class="fas fa-save me-1"></i> บันทึกข้อมูล',
+            cancelButtonText: 'ยกเลิก',
+            preConfirm: () => {
+                return {
+                    key: document.getElementById('swal-key').value,
+                    name: document.getElementById('swal-name').value.trim(),
+                    rawDate: document.getElementById('swal-date').value,
+                    timePart: document.getElementById('swal-time').value
+                }
+            }
+        });
+
+        if (formValues) {
+            if (!formValues.name || !formValues.rawDate) {
+                Swal.fire('ข้อมูลไม่ครบถ้วน', 'กรุณาระบุข้อมูลให้ครบถ้วนด้วยครับ', 'warning');
+                return;
+            }
+
+            let finalDateString = ""; 
+            try {
+                const dateParts = formValues.rawDate.split("-");
+                const thaiMonths = ["มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน", "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"];
+                const day = parseInt(dateParts[2]);
+                const month = thaiMonths[parseInt(dateParts[1]) - 1];
+                const year = parseInt(dateParts[0]) + 543;
+                finalDateString = `${day} ${month} ${year} ${formValues.timePart}`;
+            } catch(err) { return; }
+
+            try {
+                await supabaseClient.from('sessions').update({ course_key: formValues.key, name: formValues.name, date: finalDateString }).eq('id', id);
+                Swal.fire('อัปเดตสำเร็จ', 'แก้ไขข้อมูลรอบอบรมเรียบร้อย', 'success');
+                loadConfig(); 
+            } catch (err) { Swal.fire('เกิดข้อผิดพลาด', 'ไม่สามารถบันทึกเข้าเซิร์ฟเวอร์ได้', 'error'); }
+        }
+    }
+
+    async function updateSeatsQuota(id) {
+        const newMax = parseInt(document.getElementById(`max_${id}`).value);
+        if(isNaN(newMax) || newMax <= 0) { Swal.fire('ข้อมูลไม่ถูกต้อง', 'จำนวนโควตาต้องมากกว่าศูนย์', 'warning'); return; }
+
+        try {
+            const { count, error: countErr } = await supabaseClient.from('registrations').select('*', { count: 'exact', head: true }).eq('session_id', id);
+            if(countErr) throw countErr;
+
+            const newAvailable = newMax - count;
+            const { error } = await supabaseClient.from('sessions').update({ max_seats: newMax, available_seats: newAvailable }).eq('id', id);
+            if(error) throw error;
+
+            Swal.fire('สำเร็จ', 'ปรับปรุงระดับโควตาเรียบร้อย', 'success');
+            loadConfig();
+        } catch(e) { Swal.fire('ข้อผิดพลาด', 'เซิร์ฟเวอร์ปฏิเสธการอัปเดต', 'error'); }
+    }
+
+    async function toggleSessionStatus(id, newStatus) { 
+        const { error } = await supabaseClient.from('sessions').update({ status: newStatus }).eq('id', id); 
+        if(!error) loadConfig(); 
+    }
+    
+    async function deleteSessionData(id, name) { 
+        const res = await Swal.fire({ 
+            title: 'ยืนยันการลบรอบคิวงาน?', 
+            html: `คุณต้องการลบรายการข้อมูล <b>"${name}"</b> ใช่หรือไม่?<br><small class="text-danger">⚠️ รายชื่อผู้สมัครทั้งหมดในรอบนี้จะถูกลบถาวร!</small>`, 
+            icon: 'warning', showCancelButton: true, confirmButtonColor: '#d33', confirmButtonText: 'ยืนยันทำลาย', cancelButtonText: 'ยกเลิก'
+        }); 
+        if (res.isConfirmed) { 
+            await supabaseClient.from('sessions').delete().eq('id', id); 
+            loadConfig(); 
+        } 
+    }
+    
+    function showLoader(id, show) { document.getElementById(id).style.display = show ? 'block' : 'none'; }
+</script>
+</body>
+</html>
