@@ -8,9 +8,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root { --primary: #0b4c8c; --accent: #1976d2; }
+        :root { --primary: #071f54; --accent: #1976d2; }
         body { font-family: 'Sarabun', sans-serif; background-color: #f0f4f8; color: #1e293b; }
-        .navbar { background: linear-gradient(135deg, #062b52, var(--accent)); padding: 12px 0; }
+        .navbar { background: linear-gradient(135deg, #051336, var(--accent)); padding: 12px 0; }
         .card { border: none; border-radius: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); margin-bottom: 20px; }
         .nav-pills .nav-link { color: #64748b; border-radius: 10px; font-weight: 600; }
         .nav-pills .nav-link.active { background-color: var(--primary); }
@@ -18,7 +18,7 @@
         .loader { display: none; text-align: center; padding: 20px; }
         #reader { width: 100%; border-radius: 15px; overflow: hidden; background-color: #000; }
         #authContainer { min-height: 100vh; display: flex; align-items: center; justify-content: center; }
-        .login-card { width: 100%; max-width: 420px; padding: 35px; border-radius: 24px; background: #fff; box-shadow: 0 20px 60px rgba(11,76,140,0.08); }
+        .login-card { width: 100%; max-width: 420px; padding: 35px; border-radius: 24px; background: #fff; box-shadow: 0 20px 60px rgba(7,31,84,0.1); }
         .status-toggle { cursor: pointer; transition: 0.2s; }
         .status-toggle:hover { opacity: 0.8; }
     </style>
@@ -26,13 +26,13 @@
 <body>
 
 <div id="authContainer">
-    <div class="login-card text-center">
-        <div class="mb-4">
-            <img src="https://ghgmupyrkeakyolliogv.supabase.co/storage/v1/object/public/rjrh-trainning's%20Org/rjrh-traiing.png" alt="Logo" style="max-width: 220px; height: auto;">
+    <div class="login-card">
+        <div class="text-center mb-4">
+            <img src="https://ghgmupyrkeakyolliogv.supabase.co/storage/v1/object/public/rjrh-trainning's%20Org/rjrh-traiing.png" alt="RJRH Logo" style="height: 140px; object-fit: contain;">
             <h4 class="fw-bold text-primary mt-3">RJRH TRAINING CENTER</h4>
             <p class="text-muted small">ระบบจัดการข้อมูลและเช็คอินสำหรับเจ้าหน้าที่</p>
         </div>
-        <form id="loginForm" class="text-start" onsubmit="handleLogin(event); return false;">
+        <form id="loginForm" onsubmit="handleLogin(event)">
             <div class="mb-3">
                 <label class="form-label fw-semibold">username</label>
                 <input type="email" id="loginEmail" class="form-control form-control-lg bg-light" placeholder="admin@gmail.com" required>
@@ -41,7 +41,7 @@
                 <label class="form-label fw-semibold">password</label>
                 <input type="password" id="loginPassword" class="form-control form-control-lg bg-light" placeholder="••••••••" required>
             </div>
-            <button type="button" id="btnLogin" class="btn btn-primary btn-lg w-100 rounded-3 fw-bold" onclick="handleLogin(event)">เข้าสู่ระบบ</button>
+            <button type="submit" id="btnLogin" class="btn btn-primary btn-lg w-100 rounded-3 fw-bold">เข้าสู่ระบบ</button>
         </form>
     </div>
 </div>
@@ -50,8 +50,8 @@
     <nav class="navbar navbar-dark shadow-sm">
         <div class="container d-flex justify-content-between align-items-center">
             <span class="navbar-brand fw-bold d-flex align-items-center">
-                <img src="https://ghgmupyrkeakyolliogv.supabase.co/storage/v1/object/public/rjrh-trainning's%20Org/rjrh-traiing.png" alt="Logo" style="height: 38px; margin-right: 12px; filter: brightness(0) invert(1);"> 
-                RJRH TRAINING CENTER - Dashboard
+                <img src="https://ghgmupyrkeakyolliogv.supabase.co/storage/v1/object/public/rjrh-trainning's%20Org/rjrh-traiing.png" alt="Logo" style="height: 35px; margin-right: 12px; filter: brightness(0) invert(1);"> 
+                RJRH TRAINING CENTER - Admin Dashboard
             </span>
             <button class="btn btn-sm btn-outline-light rounded-pill px-3 fw-bold" onclick="handleLogout()"><i class="fas fa-sign-out-alt me-1"></i> ออกจากระบบ</button>
         </div>
@@ -60,7 +60,7 @@
     <div class="container py-4">
         <ul class="nav nav-pills nav-fill mb-4 p-1 bg-white rounded-3 shadow-sm" id="staffTab" role="tablist">
             <li class="nav-item"><button class="nav-link active" data-bs-toggle="pill" data-bs-target="#checkinTab"><i class="fas fa-qrcode me-1"></i> สแกนลงชื่อ</button></li>
-            <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#reportTab" onclick="loadSessionsForReport()"><i class="fas fa-list me-1"></i> รายชื่อ</button></li>
+            <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#reportTab" onclick="loadSessionsForReport()"><i class="fas fa-list me-1"></i> รายชื่อผู้สมัคร</button></li>
             <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#configTab" onclick="loadConfig()"><i class="fas fa-cog me-1"></i> ตั้งค่ารอบอบรม</button></li>
         </ul>
 
@@ -68,9 +68,9 @@
             <div class="tab-pane fade show active" id="checkinTab">
                 <div class="card p-4 bg-white shadow-sm">
                     <div class="btn-group w-100 mb-4" role="group">
-                        <input type="radio" class="btn-check" name="scanMode" id="modeIn" value="IN" checked>
+                        <input type="radio" class="btn-check" name="scanMode" id="modeIn" value="IN" checked onchange="clearResult()">
                         <label class="btn btn-outline-success py-2 fw-bold" for="modeIn">โหมดเช็คอิน</label>
-                        <input type="radio" class="btn-check" name="scanMode" id="modeOut" value="OUT">
+                        <input type="radio" class="btn-check" name="scanMode" id="modeOut" value="OUT" onchange="clearResult()">
                         <label class="btn btn-outline-warning py-2 fw-bold" for="modeOut">โหมดเช็คเอาท์ (ยกเลิก)</label>
                     </div>
                     <div class="text-center mb-3" id="cameraStartSection">
@@ -80,15 +80,16 @@
                         <button class="btn btn-danger w-100 fw-bold mb-3 shadow-sm" onclick="stopScanner()">ปิดกล้อง</button>
                         <div id="reader"></div>
                     </div>
-                    <div id="actionResult" style="display: none;"></div>
                 </div>
                 <div class="card p-4 shadow-sm">
-                    <h6 class="fw-bold text-muted mb-3">พิมพ์รหัสด้วยตัวเอง (Manual)</h6>
+                    <h6 class="fw-bold text-muted mb-3">พิมพ์รหัสด้วยตัวเอง (Manual Search)</h6>
                     <div class="input-group">
-                        <input type="text" id="searchInput" class="form-control form-control-lg bg-light" placeholder="กรอกรหัสลงทะเบียน 6 หลัก หรือ เบอร์โทรศัพท์">
-                        <button class="btn btn-primary px-4" id="btnManualSubmit" onclick="processManualInput()"><i class="fas fa-paper-plane"></i></button>
+                        <input type="text" id="searchInput" class="form-control form-control-lg bg-light" placeholder="กรอกรหัสลงทะเบียน 8 หลัก หรือเบอร์โทรศัพท์">
+                        <button class="btn btn-primary px-4" id="btnManualSubmit" onclick="processManualInput()"><i class="fas fa-search"></i> ค้นหา</button>
                     </div>
                     <div class="loader" id="searchLoader"><div class="spinner-border text-primary"></div></div>
+                    
+                    <div id="actionResult" style="display: none; margin-top: 15px;"></div>
                 </div>
             </div>
 
@@ -102,12 +103,11 @@
                         <table class="table table-hover align-middle">
                             <thead class="table-light">
                                 <tr>
-                                    <th width="60" class="text-center">ลำดับ</th>
-                                    <th>ชื่อภาษาไทย</th>
-                                    <th>ชื่อภาษาอังกฤษ (EN)</th>
-                                    <th width="100" class="text-center">รหัส</th>
-                                    <th width="140" class="text-center">สิทธิ์ถ่ายภาพ (PDPA)</th>
-                                    <th width="110" class="text-center">สถานะ</th>
+                                    <th width="80" class="text-center">ลำดับ</th>
+                                    <th>ชื่อ-นามสกุล (TH / EN)</th>
+                                    <th width="120" class="text-center">รหัสลงทะเบียน</th>
+                                    <th width="150" class="text-center">สิทธิ์ภาพถ่าย (PDPA)</th>
+                                    <th width="120" class="text-center">สถานะ</th>
                                 </tr>
                             </thead>
                             <tbody id="participantList"></tbody>
@@ -175,19 +175,16 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
+    // ⚙️ อัปเดตข้อมูลสิ่งแวดล้อมระบบหลักของ RJRH TRAINING CENTER ทั้งหมด
+    const PROJECT_NAME = "RJRH TRAINING CENTER";
     const SUPABASE_URL = "https://ghgmupyrkeakyolliogv.supabase.co"; 
-    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdoZ211cHlya2Vha3lvbGxpb2d2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkyNDE0ODksImV4cCI6MjA5NDQxNzQ4OX0.RSciT8WVeD9bwmo3DlMhw4KsdM1ftgKXka9QI9pvYzs"; 
-    const GOOGLE_SHEET_API = "https://script.google.com/macros/s/AKfycbyX4O0PyxIkRy24iIotJn7atpAJznN7CvPAkUASoSbb9Uv7eFT_sVllTMs_SMcFlbmT/exec";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdoZ211cHlya2Vha3lvbGxpb2d2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkyNDE0ODksImV4cCI6MjA5NDgxNzQ4OX0.RSciT8WVeD9bwmo3DlMhw4KsdM1ftgKXka9QI9pvYzs"; 
+    const GOOGLE_SHEET_API = "https://script.google.com/macros/s/AKfycby1Cfn0lSS6eDfCikdaXViWVUfGlv7EZOWFQzX5KQ7q6e2TsVpBp316dgSes3rvz0yf/exec";
 
-    // 🔄 แก้ไขโครงสร้าง: เพิ่มการบังคับประกาศสิทธิ์พาสปอร์ตชั้นในระบบสากลให้จำ Token บนเบราว์เซอร์
-    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-        auth: {
-            persistSession: true,
-            autoRefreshToken: true
-        }
-    });
-
-    let html5QrCode; let isProcessing = false;
+    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    let html5QrCode; 
+    let isProcessing = false;
+    let pendingUser = null; 
 
     window.addEventListener('DOMContentLoaded', async () => {
         const { data: { session } } = await supabaseClient.auth.getSession();
@@ -206,15 +203,11 @@
         }
     }
 
-    // 🔄 ปรับปรุงฟังก์ชันล็อกอิน: ควบคุมตรรกะแบบไม่ซ้อนทับ และหยุดอาการเอ๋อของเบราว์เซอร์
     async function handleLogin(e) {
-        if (e && e.preventDefault) e.preventDefault(); // 🟢 หยุดการส่งฟอร์มซ้อนเพื่อรีเฟรชหน้าเว็บเด็ดขาด
-        
+        e.preventDefault();
         const btn = document.getElementById('btnLogin');
         const email = document.getElementById('loginEmail').value.trim();
-        const password = document.getElementById('loginPassword').value.trim(); // ล้างช่องว่างหัวท้าย
-        
-        if (!email || !password) return false;
+        const password = document.getElementById('loginPassword').value;
         
         btn.disabled = true; btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> กำลังเข้าระบบ...';
 
@@ -223,13 +216,12 @@
             Swal.fire('ล็อกอินล้มเหลว', 'อีเมลหรือรหัสผ่านเจ้าหน้าที่ไม่ถูกต้อง', 'error'); 
             btn.disabled = false; btn.innerHTML = 'เข้าสู่ระบบ'; 
         }
-        return false;
     }
 
     async function handleLogout() { await supabaseClient.auth.signOut(); }
 
     async function startScanner() {
-        document.getElementById('actionResult').style.display = 'none';
+        clearResult();
         if (!html5QrCode) html5QrCode = new Html5Qrcode("reader");
         document.getElementById('cameraStartSection').style.display = 'none';
         document.getElementById('scannerContainer').style.display = 'block';
@@ -249,15 +241,22 @@
     onScanSuccess = (decodedText) => {
         if(isProcessing) return;
         document.getElementById('searchInput').value = decodedText;
-        stopScanner(); executeCheckInAction(decodedText);
+        stopScanner(); 
+        searchParticipant(decodedText);
     }
 
     function processManualInput() {
         const query = document.getElementById('searchInput').value.trim();
-        if(query) executeCheckInAction(query);
+        if(query) searchParticipant(query);
+    }
+    
+    function clearResult() {
+        document.getElementById('actionResult').style.display = 'none';
+        pendingUser = null;
     }
 
-    async function executeCheckInAction(searchQuery) {
+    // 🔄 ดึงข้อมูลมาแสดงพรีวิวก่อนกดยืนยัน (ปรับ Query เชื่อมโยงแบบ Flat Schema)
+    async function searchParticipant(searchQuery) {
         if(isProcessing) return;
         isProcessing = true; 
         showLoader('searchLoader', true);
@@ -270,67 +269,122 @@
         resultDiv.style.display = 'none';
 
         try {
-            let queryBuilder = supabaseClient.from('registrations').select('*, sessions(name, date, course_key)');
-            if (/^\d{9,10}$/.test(searchQuery)) {
-                queryBuilder = queryBuilder.eq('phone', searchQuery);
-            } else {
-                queryBuilder = queryBuilder.eq('id', searchQuery);
-            }
+            // ดึงข้อมูลโดยเชื่อมความสัมพันธ์ทางอ้อมด้วยฟิลด์ course_key แทน
+            let { data: results, error: fetchError } = await supabaseClient
+                .from('registrations')
+                .select('*')
+                .or(`id.eq.${searchQuery},phone.eq.${searchQuery}`);
 
-            const { data: results, error: fetchError } = await queryBuilder;
             if (fetchError) throw fetchError;
             if (!results || results.length === 0) {
                 throw new Error(`ไม่พบข้อมูลผู้ลงทะเบียนจากรหัส หรือ เบอร์โทร: "${searchQuery}"`);
             }
 
             const user = results[results.length - 1];
-            const registrationId = user.id;
+            
+            // ดึงข้อมูลชื่อคอร์สและวันที่แบบ Dynamic จากตาราง sessions
+            const { data: sessionData } = await supabaseClient.from('sessions').select('name, date').eq('course_key', user.course_key).single();
+            user.session_info = sessionData || { name: user.course_key, date: "ไม่ระบุรอบ" };
+            
+            pendingUser = user; 
 
-            let updateField = selectedMode === "IN" ? { is_checked_in: true, checked_in_at: new Date() } : { is_checked_in: false, checked_in_at: null };
-            const { error: updateError } = await supabaseClient.from('registrations').update(updateField).eq('id', registrationId);
-            if (updateError) throw updateError;
+            let pdpaBadge = user.photo_consent 
+                ? `<span class="badge bg-success"><i class="fas fa-camera me-1"></i> ยินยอมถ่ายภาพ (PDPA)</span>` 
+                : `<span class="badge bg-danger"><i class="fas fa-camera-slash me-1"></i> ❌ ห้ามถ่ายภาพ</span>`;
+            
+            let currentStatus = user.is_checked_in 
+                ? `<span class="text-success fw-bold"><i class="fas fa-check-circle"></i> เช็คอินแล้ว</span>`
+                : `<span class="text-secondary fw-bold"><i class="fas fa-clock"></i> ยังไม่เช็คอิน</span>`;
 
-            if(selectedMode === "IN") {
-                const fullSessionString = `${user.sessions.name} (${user.sessions.date})`;
-                await fetch(GOOGLE_SHEET_API, {
-                    method: 'POST', mode: 'no-cors',
-                    body: new URLSearchParams({ 
-                        action: "checkInSuccess", 
-                        id: user.id, 
-                        prefix: user.prefix, 
-                        nameTh: user.name_th,
-                        nameEn: user.name_en, 
-                        phone: user.phone, 
-                        email: user.email, 
-                        sessionName: fullSessionString,
-                        courseKey: user.sessions.course_key 
-                    })
-                });
-            }
+            let prefixStr = user.prefix ? user.prefix + " " : "";
 
-            let pdpaBadge = '';
-            if (selectedMode === "IN") {
-                pdpaBadge = user.photo_consent 
-                    ? `<div class="mt-2 text-success fw-bold small"><i class="fas fa-camera me-1"></i> ยินยอมให้ถ่ายภาพประชาสัมพันธ์ ได้</div>` 
-                    : `<div class="mt-2 text-danger fw-bold small"><i class="fas fa-camera-slash me-1"></i> ❌ ห้ามถ่ายภาพ/วิดีโอประชาสัมพันธ์เด็ดขาด</div>`;
-            }
+            let actionButton = selectedMode === 'IN' 
+                ? `<button class="btn btn-success btn-lg w-100 fw-bold mt-3 shadow-sm" onclick="commitCheckIn('IN')"><i class="fas fa-sign-in-alt me-2"></i> ยืนยันเช็คอินและออกวุฒิบัตร</button>`
+                : `<button class="btn btn-warning btn-lg w-100 fw-bold mt-3 shadow-sm" onclick="commitCheckIn('OUT')"><i class="fas fa-sign-out-alt me-2"></i> ยืนยันยกเลิกการเช็คอิน</button>`;
 
             resultDiv.style.display = 'block';
             resultDiv.innerHTML = `
-                <div class="alert alert-success text-center fw-bold fs-5 shadow-sm py-3 mb-0">
-                    <i class="fas fa-check-circle me-2"></i>
-                    ${selectedMode === "IN" ? 'เช็คอินสำเร็จ (บันทึกชีตแล้ว)' : 'ยกเลิกสถานะเช็คอินเรียบร้อย'}!<br>
-                    <span class="text-primary">${user.name_th} (${user.prefix} ${user.name_en})</span>
-                    ${pdpaBadge}
+                <div class="card border-primary shadow-sm mb-0">
+                    <div class="card-header bg-primary text-white fw-bold">
+                        <i class="fas fa-user-check me-1"></i> ตรวจสอบข้อมูลก่อนยืนยัน
+                    </div>
+                    <div class="card-body text-start">
+                        <p class="mb-1"><small class="text-muted">ชื่อ-สกุล (ไทย):</small><br><b class="fs-5">${user.full_name_th}</b></p>
+                        <p class="mb-1"><small class="text-muted">ชื่อ-สกุล (ENG):</small><br><b class="fs-6 text-primary">${prefixStr}${user.full_name_en}</b></p>
+                        <p class="mb-1"><small class="text-muted">หลักสูตร:</small><br><b>${user.session_info.name}</b></p>
+                        
+                        <div class="d-flex justify-content-between mt-3 pb-2 border-bottom">
+                            <div><small class="text-muted d-block">PDPA Consent</small>${pdpaBadge}</div>
+                            <div class="text-end"><small class="text-muted d-block">สถานะปัจจุบัน</small>${currentStatus}</div>
+                        </div>
+                        ${actionButton}
+                    </div>
                 </div>`;
         } catch (e) {
             resultDiv.style.display = 'block';
             resultDiv.innerHTML = `<div class="alert alert-danger text-center fw-bold shadow-sm py-3 mb-0"><i class="fas fa-times-circle me-2"></i>${e.message}</div>`;
         } finally { 
             showLoader('searchLoader', false); 
-            document.getElementById('searchInput').value = ''; 
             if(btnManual) btnManual.disabled = false;
             isProcessing = false; 
+        }
+    }
+
+    // 🔄 ยืนยันเช็คอิน อัปเดตตาราง และ สั่งงานยิง Automation ข้ามไปคุมฝั่ง Google Sheets
+    async function commitCheckIn(selectedMode) {
+        if(isProcessing || !pendingUser) return;
+        isProcessing = true;
+        
+        const resultDiv = document.getElementById('actionResult'); 
+        const user = pendingUser;
+        const registrationId = user.id;
+        let prefixStr = user.prefix ? user.prefix + " " : "";
+        
+        resultDiv.innerHTML = `<div class="text-center py-4"><div class="spinner-border text-primary mb-2"></div><br>กำลังอัปเดตระบบและเจนไฟล์วุฒิบัตร...</div>`;
+
+        try {
+            let updateField = selectedMode === "IN" ? { is_checked_in: true, checked_in_at: new Date() } : { is_checked_in: false, checked_in_at: null };
+            const { error: updateError } = await supabaseClient.from('registrations').update(updateField).eq('id', registrationId);
+            if (updateError) throw updateError;
+
+            // สั่ง Microservice ฝั่ง Google Apps Script ทำงานกรณีที่เป็นการกดเช็คอินจริง
+            if(selectedMode === "IN") {
+                const fullSessionString = `${user.session_info.name} (${user.session_info.date})`;
+                await fetch(GOOGLE_SHEET_API, {
+                    method: 'POST', mode: 'no-cors',
+                    body: new URLSearchParams({ 
+                        action: "checkInSuccess", 
+                        id: user.id, 
+                        prefix: user.prefix || "", 
+                        nameEn: user.full_name_en, // สับหัวขั้วส่งชื่อตรงไปพิมพ์วุฒิบัตรดิจิทัลสากล
+                        phone: user.phone, 
+                        email: user.email, 
+                        sessionName: fullSessionString,
+                        courseKey: user.course_key 
+                    })
+                });
+            }
+
+            let pdpaBadge = user.photo_consent 
+                ? `<div class="mt-2 text-success fw-bold small"><i class="fas fa-camera me-1"></i> ยินยอมให้ถ่ายภาพประชาสัมพันธ์ได้</div>` 
+                : `<div class="mt-2 text-danger fw-bold small"><i class="fas fa-camera-slash me-1"></i> ❌ ห้ามถ่ายภาพ/วิดีโอประชาสัมพันธ์เด็ดขาด</div>`;
+
+            resultDiv.innerHTML = `
+                <div class="alert alert-success text-center fw-bold fs-5 shadow-sm py-3 mb-0">
+                    <i class="fas fa-check-circle me-2"></i>
+                    ${selectedMode === "IN" ? 'เช็คอินสำเร็จ! ระบบกำลังรันคิวส่งใบประกาศสากลทางอีเมล' : 'ยกเลิกสถานะเช็คอินเรียบร้อยแล้ว!'}<br>
+                    <span class="text-primary">${user.full_name_th}</span><br>
+                    <span class="text-muted small fw-normal">(${prefixStr}${user.full_name_en})</span>
+                    ${pdpaBadge}
+                </div>`;
+            
+            pendingUser = null; 
+            document.getElementById('searchInput').value = ''; 
+            
+        } catch (e) {
+            resultDiv.innerHTML = `<div class="alert alert-danger text-center fw-bold shadow-sm py-3 mb-0"><i class="fas fa-times-circle me-2"></i>${e.message}</div>`;
+        } finally {
+            isProcessing = false;
         }
     }
 
@@ -339,30 +393,31 @@
         const { data: sessions, error } = await supabaseClient.from('sessions').select('*').order('id', { ascending: true });
         if (error) return;
         sel.innerHTML = '<option value="">-- เลือกรอบอบรม --</option>';
-        sessions.forEach(s => { sel.innerHTML += `<option value="${s.id}">[${s.course_key}] ${s.name} [รอบ: ${s.date}]</option>`; });
+        sessions.forEach(s => { sel.innerHTML += `<option value="${s.course_key}">[${s.course_key}] ${s.name} [รอบ: ${s.date}]</option>`; });
     }
 
     async function loadParticipants() {
-        const sessionId = document.getElementById('reportSessionSelect').value; if(!sessionId) return;
-        const tbody = document.getElementById('participantList'); tbody.innerHTML = '<tr><td colspan="6" class="text-center">กำลังโหลดข้อมูลรายชื่อ...</td></tr>';
+        const courseKey = document.getElementById('reportSessionSelect').value; if(!courseKey) return;
+        const tbody = document.getElementById('participantList'); tbody.innerHTML = '<tr><td colspan="5" class="text-center">กำลังโหลดข้อมูลรายชื่อ...</td></tr>';
         
-        const { data: list, error } = await supabaseClient.from('registrations').select('*').eq('session_id', sessionId).order('created_at', { ascending: true });
-        if(error) { tbody.innerHTML = '<tr><td colspan="6" class="text-center text-danger">เกิดข้อผิดพลาดภายในหมวดค้นหาข้อมูล</td></tr>'; return; }
+        const { data: list, error } = await supabaseClient.from('registrations').select('*').eq('course_key', courseKey).order('created_at', { ascending: true });
+        if(error) { tbody.innerHTML = '<tr><td colspan="5" class="text-center text-danger">เกิดข้อผิดพลาดในการโหลดข้อมูล</td></tr>'; return; }
         
         tbody.innerHTML = '';
-        if(list.length === 0) { tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted">รอบการอบรมนี้ยังไม่มีผู้ลงทะเบียนเข้ามาในฐานระบบ</td></tr>'; return; }
+        if(list.length === 0) { tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted">หลักสูตรนี้ยังไม่มีผู้ลงทะเบียนเข้ามาในระบบ</td></tr>'; return; }
 
         list.forEach((row, index) => {
             const status = row.is_checked_in ? '<span class="badge bg-success"><i class="fas fa-check me-1"></i>รายงานตัวแล้ว</span>' : '<span class="badge bg-secondary">ยังไม่แสดงตัว</span>';
             const photoConsentStatus = row.photo_consent 
                 ? '<span class="badge bg-light text-success border border-success"><i class="fas fa-camera me-1"></i>ถ่ายรูปได้</span>' 
                 : '<span class="badge bg-light text-danger border border-danger"><i class="fas fa-camera-slash me-1"></i>❌ ห้ามถ่าย</span>';
+            
+            let prefixStr = row.prefix ? row.prefix + " " : "";
 
             tbody.innerHTML += `
                 <tr>
                     <td class="text-center fw-bold text-muted">${index + 1}</td>
-                    <td><b>${row.name_th}</b></td>
-                    <td><code>${row.prefix} ${row.name_en}</code></td>
+                    <td><b>${row.full_name_th}</b><br><small class="text-muted">${prefixStr}${row.full_name_en}</small></td>
                     <td class="text-center"><code>${row.id}</code></td>
                     <td class="text-center">${photoConsentStatus}</td>
                     <td class="text-center">${status}</td>
@@ -376,7 +431,7 @@
         if (error) return;
         tbody.innerHTML = '';
         sessions.forEach(s => {
-            const statusBadge = s.status === 'Active' ? `<span class="badge bg-success status-toggle" onclick="toggleSessionStatus(${s.id}, 'Closed')" title="คลิกเพื่อปิดล็อกฟอร์มชั่วคราว">เปิดรับ</span>` : `<span class="badge bg-secondary status-toggle" onclick="toggleSessionStatus(${s.id}, 'Active')" title="คลิกเพื่อเปิดรับเปิดระบบ">ปิดซ่อน</span>`;
+            const statusBadge = s.status === 'Active' ? `<span class="badge bg-success status-toggle" onclick="toggleSessionStatus(${s.id}, 'Closed')" title="คลิกเพื่อปิดล็อกฟอร์มชั่วคราว">เปิดรับ</span>` : `<span class="badge bg-secondary status-toggle" onclick="toggleSessionStatus(${s.id}, 'Active')" title="คลิกเพื่อเปิดระบบ">ปิดซ่อน</span>`;
             tbody.innerHTML += `
                 <tr>
                     <td><span class="badge bg-dark mb-1">${s.course_key}</span><br><b>${s.name}</b><br><small class="text-primary fw-bold"><i class="far fa-calendar-alt me-1"></i> ${s.date}</small></td>
@@ -384,7 +439,7 @@
                     <td class="text-center px-1"><input type="number" class="form-control form-control-sm text-center mx-auto" id="max_${s.id}" value="${s.max_seats}" style="width:75px" min="1"></td>
                     <td class="text-center fw-bold text-primary">${s.available_seats}</td>
                     <td class="text-center">
-                        <button class="btn btn-sm btn-warning text-dark mb-1 me-1" onclick="editAdvancedSessionData(${s.id}, '${s.name}', '${s.date}', '${s.course_key}')" title="แก้ไขชื่อ/วันที่/รอบเวลา"><i class="fas fa-edit"></i></button>
+                        <button class="btn btn-sm btn-warning text-dark mb-1 me-1" onclick="editAdvancedSessionData(${s.id}, '${s.name}', '${s.date}', '${s.course_key}')" title="แก้ไขชื่อ/วันที่"><i class="fas fa-edit"></i></button>
                         <button class="btn btn-sm btn-primary mb-1 me-1" onclick="updateSeatsQuota(${s.id})" title="บันทึกจำนวนโควตาที่นั่ง"><i class="fas fa-save"></i></button> 
                         <button class="btn btn-sm btn-danger mb-1" onclick="deleteSessionData(${s.id}, '${s.name}')" title="ลบข้อมูลรอบอบรมถาวร"><i class="fas fa-trash"></i></button>
                     </td>
@@ -401,7 +456,7 @@
         const btn = document.getElementById('btnCreateSession');
         
         if(!name || !rawDate || !max || parseInt(max) <= 0) { 
-            Swal.fire('ข้อมูลไม่ครบถ้วน', 'กรุณาระบุข้อมูลรอบสมัครให้ครบถ้วนด้วยครับ', 'warning'); 
+            Swal.fire('ข้อมูลไม่ครบถ้วน', 'กรุณาระบุข้อมูลให้ครบถ้วนด้วยครับ', 'warning'); 
             return; 
         }
         
@@ -414,6 +469,7 @@
             const day = parseInt(dateParts[2]);
             const month = thaiMonths[parseInt(dateParts[1]) - 1];
             const year = parseInt(dateParts[0]) + 543; 
+            
             const fullDateString = `${day} ${month} ${year} ${timePart}`; 
 
             const { error } = await supabaseClient.from('sessions').insert([{ course_key: courseKey, name, date: fullDateString, max_seats: parseInt(max), available_seats: parseInt(max) }]);
@@ -516,7 +572,9 @@
         if(isNaN(newMax) || newMax <= 0) { Swal.fire('ข้อมูลไม่ถูกต้อง', 'จำนวนโควตาต้องมากกว่าศูนย์', 'warning'); return; }
 
         try {
-            const { count, error: countErr } = await supabaseClient.from('registrations').select('*', { count: 'exact', head: true }).eq('session_id', id);
+            // นับยอดผู้สมัครในปัจจุบันจริงเพื่อนำไปลบหาที่นั่งที่เหลืออย่างถูกต้อง
+            const { data: sessionInfo } = await supabaseClient.from('sessions').select('course_key').eq('id', id).single();
+            const { count, error: countErr } = await supabaseClient.from('registrations').select('*', { count: 'exact', head: true }).eq('course_key', sessionInfo.course_key);
             if(countErr) throw countErr;
 
             const newAvailable = newMax - count;
@@ -536,7 +594,7 @@
     async function deleteSessionData(id, name) { 
         const res = await Swal.fire({ 
             title: 'ยืนยันการลบรอบคิวงาน?', 
-            html: `คุณต้องการลบรายการข้อมูล <b>"${name}"</b> ใช่หรือไม่?<br><small class="text-danger">⚠️ รายชื่อผู้สมัครทั้งหมดในรอบนี้จะถูกลบถาวร!</small>`, 
+            html: `คุณต้องการลบรายการข้อมูล <b>"${name}"</b> ใช่หรือไม่?<br><small class="text-danger">⚠️ รายชื่อผู้สมัครทั้งหมดในรอบคอร์สนี้จะถูกลบถาวร!</small>`, 
             icon: 'warning', showCancelButton: true, confirmButtonColor: '#d33', confirmButtonText: 'ยืนยันทำลาย', cancelButtonText: 'ยกเลิก'
         }); 
         if (res.isConfirmed) { 
