@@ -175,7 +175,6 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
-    // ⚙️ อัปเดตข้อมูลสิ่งแวดล้อมระบบหลักของ RJRH TRAINING CENTER ทั้งหมด
     const PROJECT_NAME = "RJRH TRAINING CENTER";
     const SUPABASE_URL = "https://ghgmupyrkeakyolliogv.supabase.co"; 
     const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdoZ211cHlya2Vha3lvbGxpb2d2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkyNDE0ODksImV4cCI6MjA5NDgxNzQ4OX0.RSciT8WVeD9bwmo3DlMhw4KsdM1ftgKXka9QI9pvYzs"; 
@@ -203,18 +202,28 @@
         }
     }
 
+    // 🔥 [จุดที่ปรับแก้] เพิ่มการดึง error.message ของจริงมาแสดง
     async function handleLogin(e) {
         e.preventDefault();
         const btn = document.getElementById('btnLogin');
         const email = document.getElementById('loginEmail').value.trim();
         const password = document.getElementById('loginPassword').value;
         
-        btn.disabled = true; btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> กำลังเข้าระบบ...';
+        btn.disabled = true; 
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> กำลังเข้าระบบ...';
 
-        const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
+        const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+        
         if (error) { 
-            Swal.fire('ล็อกอินล้มเหลว', 'อีเมลหรือรหัสผ่านเจ้าหน้าที่ไม่ถูกต้อง', 'error'); 
-            btn.disabled = false; btn.innerHTML = 'เข้าสู่ระบบ'; 
+            // โชว์ข้อความ Error จริงจาก Supabase เพื่อให้รู้วิธีแก้
+            Swal.fire('ล็อกอินล้มเหลว', `สาเหตุ: ${error.message}`, 'error'); 
+            btn.disabled = false; 
+            btn.innerHTML = 'เข้าสู่ระบบ'; 
+        } else {
+            // สำเร็จแล้วสลับหน้าจอทันที
+            toggleAppView(data.session);
+            btn.disabled = false; 
+            btn.innerHTML = 'เข้าสู่ระบบ'; 
         }
     }
 
@@ -255,7 +264,6 @@
         pendingUser = null;
     }
 
-    // 🔄 ดึงข้อมูลมาแสดงพรีวิวก่อนกดยืนยัน (ปรับ Query เชื่อมโยงแบบ Flat Schema)
     async function searchParticipant(searchQuery) {
         if(isProcessing) return;
         isProcessing = true; 
@@ -269,7 +277,6 @@
         resultDiv.style.display = 'none';
 
         try {
-            // ดึงข้อมูลโดยเชื่อมความสัมพันธ์ทางอ้อมด้วยฟิลด์ course_key แทน
             let { data: results, error: fetchError } = await supabaseClient
                 .from('registrations')
                 .select('*')
@@ -282,7 +289,6 @@
 
             const user = results[results.length - 1];
             
-            // ดึงข้อมูลชื่อคอร์สและวันที่แบบ Dynamic จากตาราง sessions
             const { data: sessionData } = await supabaseClient.from('sessions').select('name, date').eq('course_key', user.course_key).single();
             user.session_info = sessionData || { name: user.course_key, date: "ไม่ระบุรอบ" };
             
@@ -330,7 +336,6 @@
         }
     }
 
-    // 🔄 ยืนยันเช็คอิน อัปเดตตาราง และ สั่งงานยิง Automation ข้ามไปคุมฝั่ง Google Sheets
     async function commitCheckIn(selectedMode) {
         if(isProcessing || !pendingUser) return;
         isProcessing = true;
@@ -347,7 +352,6 @@
             const { error: updateError } = await supabaseClient.from('registrations').update(updateField).eq('id', registrationId);
             if (updateError) throw updateError;
 
-            // สั่ง Microservice ฝั่ง Google Apps Script ทำงานกรณีที่เป็นการกดเช็คอินจริง
             if(selectedMode === "IN") {
                 const fullSessionString = `${user.session_info.name} (${user.session_info.date})`;
                 await fetch(GOOGLE_SHEET_API, {
@@ -356,7 +360,7 @@
                         action: "checkInSuccess", 
                         id: user.id, 
                         prefix: user.prefix || "", 
-                        nameEn: user.full_name_en, // สับหัวขั้วส่งชื่อตรงไปพิมพ์วุฒิบัตรดิจิทัลสากล
+                        nameEn: user.full_name_en, 
                         phone: user.phone, 
                         email: user.email, 
                         sessionName: fullSessionString,
@@ -572,7 +576,6 @@
         if(isNaN(newMax) || newMax <= 0) { Swal.fire('ข้อมูลไม่ถูกต้อง', 'จำนวนโควตาต้องมากกว่าศูนย์', 'warning'); return; }
 
         try {
-            // นับยอดผู้สมัครในปัจจุบันจริงเพื่อนำไปลบหาที่นั่งที่เหลืออย่างถูกต้อง
             const { data: sessionInfo } = await supabaseClient.from('sessions').select('course_key').eq('id', id).single();
             const { count, error: countErr } = await supabaseClient.from('registrations').select('*', { count: 'exact', head: true }).eq('course_key', sessionInfo.course_key);
             if(countErr) throw countErr;
